@@ -47,9 +47,12 @@ async def webhook_handler(request: Request):
     await bot_app.process_update(update)
     return 'OK'
 
-@app.on_event("startup")
-async def on_startup():
+@app.on_event("lifespan")
+async def lifespan(app: FastAPI):
+    # Startup
     await bot_app.bot.set_webhook(WEBHOOK_URL)
-
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    
+    yield  # Wait here until the server is shutdown
+    
+    # Shutdown (if you need any cleanup)
+    await bot_app.shutdown()
