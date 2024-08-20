@@ -1,7 +1,6 @@
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from fastapi import FastAPI, Request
-import uvicorn
 
 TOKEN = '6522756388:AAHZFrOgeCyf8T7q3YZ-zJPenVvPAUmzvP0'
 BOT_USERNAME = '@researchA_bot'
@@ -20,7 +19,6 @@ async def custom_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("This is a custom command!")
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # Your message handling logic goes here
     await update.message.reply_text(f"Echo: {update.message.text}")
 
 async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -47,12 +45,10 @@ async def webhook_handler(request: Request):
     await bot_app.process_update(update)
     return 'OK'
 
-@app.on_event("lifespan")
-async def lifespan(app: FastAPI):
-    # Startup
+@app.on_event("startup")
+async def on_startup():
     await bot_app.bot.set_webhook(WEBHOOK_URL)
-    
-    yield  # Wait here until the server is shutdown
-    
-    # Shutdown (if you need any cleanup)
+
+@app.on_event("shutdown")
+async def on_shutdown():
     await bot_app.shutdown()
