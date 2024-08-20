@@ -8,7 +8,7 @@ WEBHOOK_URL = 'https://rabot50.onrender.com/webhook'
 
 app = FastAPI()
 
-# Define your bot commands and handlers as before
+# Define your bot commands and handlers
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Hello! Thanks for chatting with me!")
 
@@ -33,7 +33,7 @@ bot_app.add_handler(CommandHandler('help', help_command))
 bot_app.add_handler(CommandHandler('custom', custom_command))
 
 # Register message handler
-bot_app.add_handler(MessageHandler(filters.TEXT, handle_message))
+bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
 # Register error handler
 bot_app.add_error_handler(error)
@@ -47,6 +47,10 @@ async def webhook_handler(request: Request):
 
 @app.on_event("startup")
 async def on_startup():
+    # Initialize the bot application
+    await bot_app.initialize()
+    
+    # Set the webhook for the bot
     await bot_app.bot.set_webhook(WEBHOOK_URL)
 
 @app.on_event("shutdown")
